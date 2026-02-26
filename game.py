@@ -57,6 +57,11 @@ class Game():
 						if dx == 0 and dy == 0:
 							continue
 
+						if dx == -1 and dy == -1 or dx == -1 and dy == 1:
+							continue
+						if dx == 1 and dy == -1 or dx == 1 and dy == 1:
+							continue
+
 						new_row = row + dy
 						new_col = col + dx
 
