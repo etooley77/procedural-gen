@@ -1,5 +1,8 @@
 import pygame, sys
 from random import choice
+import heapq
+
+from Systems.RenderSystem import RenderSystem
 
 from tile import Tile
 # from player import Player
@@ -16,13 +19,14 @@ class Game():
 		pygame.display.set_caption("Procedural Map Generation")
 
 		# self.player = Player()
+		self.render_system = RenderSystem(self.screen)
 
 		self.tiles = pygame.sprite.Group()
 		self.tiles_list = []
 		self.dirty_tiles = []
 
 		self.generating = True
-		self.available_tiles = set()
+		self.available_heap = []
 
 		self.game_time = 0
 		self.accumulator = 0
@@ -73,14 +77,20 @@ class Game():
 		self.update_tile((len(self.tiles_list) // 2 + ((WIDTH // 2) // TILE_WIDTH)), color)
 
 	def is_generating(self):
-		return bool(self.available_tiles)
+		return bool(self.available_heap)
 
 	# 
 
 	def get_next_tile(self):
-		if self.available_tiles:
-			choice_index = min(self.available_tiles, key=lambda i: len(self.tiles_list[i].options))
+		while self.available_heap:
+			choice_entropy, choice_index = heapq.heappop(self.available_heap)
 			choice_tile = self.tiles_list[choice_index]
+
+			if choice_tile.collapsed:
+				continue
+
+			if len(choice_tile.options) != choice_entropy:
+				continue
 
 			if choice_tile.options:
 				choice_color = choice(tuple(choice_tile.options))
@@ -96,7 +106,6 @@ class Game():
 
 		self.update_neighbors(tile.neighbors, color)
 
-		self.available_tiles.discard(index)
 		self.dirty_tiles.append(tile)
 
 	def update_neighbors(self, neighbors, color):
@@ -117,7 +126,8 @@ class Game():
 				neighbor.options.discard(FOREST)
 				neighbor.options.discard(MEADOW)
 
-			self.available_tiles.add(n)
+			entropy = len(neighbor.options)
+			heapq.heappush(self.available_heap, (entropy, n))
 
 	# 
 
@@ -141,9 +151,7 @@ class Game():
 			if self.is_generating():
 				self.get_next_tile()
 
-			for tile in self.dirty_tiles:
-				pygame.draw.rect(self.screen, tile.color, tile.rect)
-				
+			self.render_system.update(self.dirty_tiles)				
 			self.dirty_tiles.clear()
 
 			# pygame.draw.rect(self.screen, self.player.color, self.player.rect)
