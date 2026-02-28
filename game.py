@@ -3,8 +3,8 @@ from random import choice
 import heapq
 
 from Systems.RenderSystem import RenderSystem
+from GameObjects.Map import Map
 
-from tile import Tile
 # from player import Player
 
 from constants import *
@@ -18,117 +18,15 @@ class Game():
 		self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 		pygame.display.set_caption("Procedural Map Generation")
 
-		# self.player = Player()
+		# Systems
 		self.render_system = RenderSystem(self.screen)
 
-		self.tiles = pygame.sprite.Group()
-		self.tiles_list = []
-		self.dirty_tiles = []
-
-		self.generating = True
-		self.available_heap = []
+		# Game Objects
+		self.map = Map(self.render_system)
 
 		self.game_time = 0
 		self.accumulator = 0
-
-		self.init_board()
-		self.init_first_tile(MEADOW)
-
-	def init_board(self):
-		# Create all tiles
-		id = 1
-
-		for i in range(int(HEIGHT / TILE_HEIGHT)):
-			for j in range(int(WIDTH / TILE_WIDTH)):
-				tile = Tile(id, j * TILE_WIDTH, i * TILE_HEIGHT, BLACK)
-
-				self.tiles.add(tile)
-				self.tiles_list.append(tile)
-
-				id += 1
-
-		# Compute neighbors
-		rows = HEIGHT // TILE_HEIGHT
-		cols = WIDTH // TILE_WIDTH
-
-		for row in range(rows):
-			for col in range(cols):
-				index = row * cols + col
-				tile = self.tiles_list[index]
-
-				for dy in (-1, 0, 1):
-					for dx in (-1, 0, 1):
-						if dx == 0 and dy == 0:
-							continue
-
-						if dx == -1 and dy == -1 or dx == -1 and dy == 1:
-							continue
-						if dx == 1 and dy == -1 or dx == 1 and dy == 1:
-							continue
-
-						new_row = row + dy
-						new_col = col + dx
-
-						if 0 <= new_row < rows and 0 <= new_col < cols:
-							neighbor_index = new_row * cols + new_col
-							tile.neighbors.append(neighbor_index)
 	
-	def init_first_tile(self, color):
-		self.update_tile((len(self.tiles_list) // 2 + ((WIDTH // 2) // TILE_WIDTH)), color)
-
-	def is_generating(self):
-		return bool(self.available_heap)
-
-	# 
-
-	def get_next_tile(self):
-		while self.available_heap:
-			choice_entropy, choice_index = heapq.heappop(self.available_heap)
-			choice_tile = self.tiles_list[choice_index]
-
-			if choice_tile.collapsed:
-				continue
-
-			if len(choice_tile.options) != choice_entropy:
-				continue
-
-			if choice_tile.options:
-				choice_color = choice(tuple(choice_tile.options))
-
-				self.update_tile(choice_index, choice_color)
-
-	def update_tile(self, index, color):
-		tile = self.tiles_list[index]
-
-		if tile.color != color:
-			tile.color = color
-			tile.collapse()
-
-		self.update_neighbors(tile.neighbors, color)
-
-		self.dirty_tiles.append(tile)
-
-	def update_neighbors(self, neighbors, color):
-		for n in neighbors:
-			neighbor = self.tiles_list[n]
-
-			if neighbor.collapsed:
-				continue
-
-			if color == FOREST:
-				neighbor.options.discard(WATER)
-				neighbor.options.discard(SAND)
-			elif color == MEADOW:
-				neighbor.options.discard(WATER)
-			elif color == SAND:
-				neighbor.options.discard(FOREST)
-			elif color == WATER:
-				neighbor.options.discard(FOREST)
-				neighbor.options.discard(MEADOW)
-
-			entropy = len(neighbor.options)
-			heapq.heappush(self.available_heap, (entropy, n))
-
 	# 
 
 	def run(self):
@@ -137,8 +35,11 @@ class Game():
 				if event.type == pygame.QUIT:
 					pygame.quit()
 					sys.exit()
-				if event.type == pygame.KEYDOWN and not self.is_generating():
-					pass
+				if event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_SPACE:
+						self.map.render()
+					if event.key == pygame.K_e:
+						self.map.unrender()
 
 			# Calculate game time
 			delta_time = self.clock.tick()
@@ -147,13 +48,5 @@ class Game():
 			if self.accumulator >= 1000:
 				self.accumulator -= 1000
 				self.game_time += 1
-
-			if self.is_generating():
-				self.get_next_tile()
-
-			self.render_system.update(self.dirty_tiles)				
-			self.dirty_tiles.clear()
-
-			# pygame.draw.rect(self.screen, self.player.color, self.player.rect)
 
 			pygame.display.flip()
