@@ -2,7 +2,7 @@ import heapq
 from pygame import sprite
 from random import choice
 
-from Tile import Tile
+from GameObjects.Tile import Tile
 
 from constants import *
 
