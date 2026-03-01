@@ -1,3 +1,7 @@
-/__pycache__
-/Systems/__pycache__
-/GameObjects/__pycache__
+/engine/__pycache__
+/engine/Systems/__pycache__
+
+/game/__pycache__
+/game/Objects/__pycache__
+
+/.vscode

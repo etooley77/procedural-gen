@@ -1,7 +1,7 @@
 import pygame
 from pygame import sprite
 
-from constants import *
+from game.constants import *
 
 class Tile(sprite.Sprite):
     def __init__(self, id, x, y, color):

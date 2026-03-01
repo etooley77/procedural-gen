@@ -2,9 +2,9 @@ import heapq
 from pygame import sprite
 from random import choice
 
-from GameObjects.Tile import Tile
+from game.Objects.Tile import Tile
 
-from constants import *
+from game.constants import *
 
 class Map():
 	def __init__(self, render_system):
@@ -17,6 +17,7 @@ class Map():
 		self.available_heap = []
 
 		self.init_map()
+		self.render()
 
 	def init_map(self):
 		# Create all tiles
@@ -117,6 +118,3 @@ class Map():
 
 	def render(self):
 		self.render_system.draw(self.tiles)
-
-	def unrender(self):
-		self.render_system.undraw(self.tiles)
