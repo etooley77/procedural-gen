@@ -33,18 +33,30 @@ class Game():
 
 		# Game Objects
 		self.map = Map(self.render_system)
-		self.camera_group = CameraGroup()
+		self.camera_group = CameraGroup(self.screen)
 		self.player = Player((WIDTH // 2, HEIGHT // 2), self.camera_group)
 
 		self.game_time = 0
 		self.accumulator = 0
+
+	# 
+
+	def handle_actions(self, actions: list[str]):
+		for action in actions:
+			_action = action.split('-')
+			match _action[0]:
+				case "player":
+					self.player.handle_action(_action[1])
+				case _:
+					print("No valid action could be found!")
 	
 	# 
 
 	def run(self):
 		while True:
 			input_list = self.input_system.monitor_input()
-			self.input_manager.process(input_list)
+			actions = self.input_manager.process(input_list)
+			self.handle_actions(actions)
 
 			# Calculate game time
 			delta_time = self.clock.tick()
@@ -55,7 +67,8 @@ class Game():
 				self.game_time += 1
 
 			# Draw the camera group things
-			self.screen.blit(self.player.image, self.player.rect)
+			self.camera_group.update()
+			self.camera_group._draw(self.player)
 
 			# Clear the input queue for the next frame
 			self.input_system.clear_queue()
