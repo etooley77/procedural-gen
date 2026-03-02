@@ -1,0 +1,10 @@
+{
+	"keybinds": {
+		"player": {
+			"player-up": "w",
+			"player-left": "a",
+			"player-down": "s",
+			"player-right": "d"
+		}
+	}
+}

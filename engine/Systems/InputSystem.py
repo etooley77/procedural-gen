@@ -14,7 +14,7 @@ class InputSystem:
 				pygame.quit()
 				sys.exit()
 			if event.type == pygame.KEYDOWN:
-				self.input_queue.append(event.key)
+				self.input_queue.append(event)
 
 		return self.input_queue
 	
