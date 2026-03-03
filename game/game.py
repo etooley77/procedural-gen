@@ -68,7 +68,7 @@ class Game():
 
 			# Draw the camera group things
 			self.camera_group.update()
-			self.camera_group._draw(self.player)
+			self.camera_group._draw(self.map.tiles, self.player)
 
 			# Clear the input queue for the next frame
 			self.input_system.clear_queue()
