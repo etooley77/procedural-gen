@@ -11,6 +11,8 @@ class Tile(sprite.Sprite):
 
         self.x = x
         self.y = y
+        self.w = TILE_WIDTH
+        self.h = TILE_HEIGHT
 
         self.color = color
         self.options = {WATER, SAND, MEADOW, FOREST}
@@ -19,7 +21,7 @@ class Tile(sprite.Sprite):
         self.rect = self.create_rect()
 
     def create_rect(self):
-        return pygame.Rect(self.x, self.y, TILE_WIDTH, TILE_HEIGHT)
+        return pygame.Rect(self.x, self.y, self.w, self.h)
     
     def collapse(self):
         self.collapsed = True

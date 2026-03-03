@@ -66,9 +66,11 @@ class Game():
 				self.accumulator -= 1000
 				self.game_time += 1
 
+			self.screen.fill(BLACK)
+
 			# Draw the camera group things
 			self.camera_group.update()
-			self.camera_group._draw(self.map.tiles, self.player)
+			self.camera_group.draw(self.map.tiles, self.player)
 
 			# Clear the input queue for the next frame
 			self.input_system.clear_queue()
